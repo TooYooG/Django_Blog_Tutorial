@@ -80,7 +80,7 @@ class QuestionIndexViewTests(TestCase):
             [],
         )
 
-    # 过去的问题和现在的问题同事存在是否指示显示过去的问题
+    # 过去的问题和现在的问题同时存在是否指示显示过去的问题
     def test_future_question_and_past_question(self):
         # 生成一个过去30天的问题
         question = create_question(question_text="Past question.", days=-30)
@@ -131,8 +131,20 @@ class ChoiceResultsViewTests(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
 
+    # 创建一个在过去的时间内发布的问题，看看是否可以通过URL直接访问该问题
     def test_past_question_results(self):
         past_question = create_question(question_text="Past Question.", days=-5)
         url = reverse("polls:results", args=(past_question.id,))
         response = self.client.get(url)
         self.assertContains(response, past_question.question_text)
+
+class ChoiceIndexViewTests(TestCase):
+    # 创建一个问题，不创建问题的选项，看是否可以在polls显示该问题
+    def test_question_no_choice_index(self):
+        new_question = create_question(question_text="No Choice Question.", days=0)
+        url = reverse("polls:index")
+        response = self.client.get(url)
+        self.assertQuerySetEqual(
+            response.context["latest_question_list"],
+                [new_question],
+        )
