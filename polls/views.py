@@ -19,16 +19,7 @@ class IndexView(generic.ListView):
         # now_datetime会返回一个问题条件查询集，查询符合日期的问题项
         # 其中包含pub_date小于或者等于timezone.now()的问题
         now_datetime = Question.objects.filter(pub_date__lte=timezone.now())
-        # 定义一个空列表
-        now_datetime_question_list = []
-        # 从查询集中进行依次取值
-        for question in now_datetime.order_by("-pub_date"):
-        # 判断问题的投票项是否为空
-            if question.choice_set.values():
-        # 不为空则将问题项添加到now_datetime_question_list中
-                now_datetime_question_list.append(question)
-        # 返回now_datetime_question_list中的前五个问题
-        return now_datetime_question_list[:5]
+        return now_datetime.exclude(choice__isnull=True).distinct().order_by("-pub_date")[:5]
 
 
 class DetailView(generic.DetailView):

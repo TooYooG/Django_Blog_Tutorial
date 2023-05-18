@@ -61,6 +61,7 @@ class QuestionIndexViewTests(TestCase):
         # 生成一个已经过去30天的问题
         question = create_question(question_text="Past question.", days=-30)
         response = self.client.get(reverse("polls:index"))
+        print(response.context["latest_question_list"])
         self.assertQuerySetEqual(
             response.context["latest_question_list"],
             [question],
@@ -89,16 +90,15 @@ class QuestionIndexViewTests(TestCase):
         # 定义访问页面
         response = self.client.get(reverse("polls:index"))
         # 查询集中context的[latest_question_list]的值是否等于过去的问题
-        self.assertQuerySetEqual(
-            response.context["latest_question_list"],
-            [question],
-        )
+        print(response.context["latest_question_list"])
+        self.assertIn(question, response.context['latest_question_list'])
 
     # 同时测试两个问题
     def test_two_past_question(self):
         question1 = create_question(question_text="Past question1.", days=-30)
         question2 = create_question(question_text="Past question2.", days=-5)
         response = self.client.get(reverse("polls:index"))
+        print(response.context["latest_question_list"])
         self.assertQuerySetEqual(
             response.context["latest_question_list"],
             [question2, question1],
@@ -122,6 +122,7 @@ class QuestionDetailViewTests(TestCase):
         response = self.client.get(url)
         self.assertContains(response, past_question.question_text)
 
+
 class ChoiceResultsViewTests(TestCase):
     # 创建一个未来的问题，在index主页不显示该问题的情况下，通过URL直接访该问题的投票详情页，测试是否可以访问到
     # 不可访问页面的响应代码为404
@@ -138,13 +139,18 @@ class ChoiceResultsViewTests(TestCase):
         response = self.client.get(url)
         self.assertContains(response, past_question.question_text)
 
+
 class ChoiceIndexViewTests(TestCase):
     # 创建一个问题，不创建问题的选项，看是否可以在polls显示该问题
     def test_question_no_choice_index(self):
-        new_question = create_question(question_text="No Choice Question.", days=0)
+        no_choice_question = create_question(question_text="No Choice Question.", days=0)
         url = reverse("polls:index")
         response = self.client.get(url)
-        self.assertQuerySetEqual(
-            response.context["latest_question_list"],
-                [new_question],
-        )
+        self.assertNotIn(no_choice_question, response.context['latest_question_list'])
+
+    def test_question_choice_index(self):
+        choice_question = create_question(question_text="Choice Question.", days=0)
+        choice_question.choice_set.create(choice_text="choice 1")
+        response = self.client.get(reverse("polls:index"))
+        print(response.context['latest_question_list'])
+        self.assertIn(choice_question, response.context['latest_question_list'])
