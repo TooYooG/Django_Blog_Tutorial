@@ -60,8 +60,8 @@ class QuestionIndexViewTests(TestCase):
     def test_past_question(self):
         # 生成一个已经过去30天的问题
         question = create_question(question_text="Past question.", days=-30)
+        question.choice_set.create(choice_text="choice 1")
         response = self.client.get(reverse("polls:index"))
-        print(response.context["latest_question_list"])
         self.assertQuerySetEqual(
             response.context["latest_question_list"],
             [question],
@@ -84,21 +84,23 @@ class QuestionIndexViewTests(TestCase):
     # 过去的问题和现在的问题同时存在是否指示显示过去的问题
     def test_future_question_and_past_question(self):
         # 生成一个过去30天的问题
-        question = create_question(question_text="Past question.", days=-30)
+        question1 = create_question(question_text="Past question.", days=-30)
+        question1.choice_set.create(choice_text="choice 1")
         # 生成一个未来30天的问题
-        create_question(question_text="Future question.", days=30)
+        question2 = create_question(question_text="Future question.", days=30)
+        question2.choice_set.create(choice_text='choice 2')
         # 定义访问页面
         response = self.client.get(reverse("polls:index"))
         # 查询集中context的[latest_question_list]的值是否等于过去的问题
-        print(response.context["latest_question_list"])
-        self.assertIn(question, response.context['latest_question_list'])
+        self.assertIn(question1, response.context['latest_question_list'])
 
     # 同时测试两个问题
     def test_two_past_question(self):
         question1 = create_question(question_text="Past question1.", days=-30)
+        question1.choice_set.create(choice_text="Choice 1")
         question2 = create_question(question_text="Past question2.", days=-5)
+        question2.choice_set.create(choice_text="Choice 2")
         response = self.client.get(reverse("polls:index"))
-        print(response.context["latest_question_list"])
         self.assertQuerySetEqual(
             response.context["latest_question_list"],
             [question2, question1],
@@ -152,5 +154,4 @@ class ChoiceIndexViewTests(TestCase):
         choice_question = create_question(question_text="Choice Question.", days=0)
         choice_question.choice_set.create(choice_text="choice 1")
         response = self.client.get(reverse("polls:index"))
-        print(response.context['latest_question_list'])
         self.assertIn(choice_question, response.context['latest_question_list'])
