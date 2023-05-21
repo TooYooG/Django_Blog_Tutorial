@@ -1,5 +1,6 @@
 li a {
     color: green;
+<<<<<<< HEAD
 }
 body {
     position:fixed;
@@ -13,4 +14,6 @@ body {
     background: url("images/background.png") no-repeat center center ;/*背景图路径 背景图不平铺 背景图垂直、水平均居中 */
     background-size:cover; /* ---把背景图片放大到适合元素容器的尺寸，图片比例不变，但某些部分被切割无法显示完整背景图像 */
     background-attachment:fixed; /* 当内容高度大于图片高度时，背景图像的位置相对于 可视窗口 固定，此条属性必须设置 */
+=======
+>>>>>>> origin/master
 }
