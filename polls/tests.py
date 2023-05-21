@@ -93,6 +93,7 @@ class QuestionIndexViewTests(TestCase):
         response = self.client.get(reverse("polls:index"))
         # 查询集中context的[latest_question_list]的值是否等于过去的问题
         self.assertIn(question1, response.context['latest_question_list'])
+        self.assertNotIn(question2, response.context['latest_question_list'])
 
     # 同时测试两个问题
     def test_two_past_question(self):
@@ -150,6 +151,7 @@ class ChoiceIndexViewTests(TestCase):
         response = self.client.get(url)
         self.assertNotIn(no_choice_question, response.context['latest_question_list'])
 
+    # 创建一个有choice的question，查看是否在index页面中显示
     def test_question_choice_index(self):
         choice_question = create_question(question_text="Choice Question.", days=0)
         choice_question.choice_set.create(choice_text="choice 1")
