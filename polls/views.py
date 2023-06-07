@@ -5,6 +5,8 @@ from django.views import generic
 from django.db.models import F
 from django.utils import timezone
 from .models import Choice, Question
+from django.core import serializers
+from django.views.decorators.http import require_http_methods
 
 
 class IndexView(generic.ListView):
@@ -14,12 +16,13 @@ class IndexView(generic.ListView):
     """def get_queryset(self):
         返回最后五个问题,包括未来的
         return Question.objects.order_by('-pub_date')[:5]"""
+
     def get_queryset(self):
         # 只返回当前时间之前的问题,不返回未来的问题,这里需要引入时间参数,将时间设置为现在
         # now_datetime会返回一个问题条件查询集，查询符合日期的问题项
         # 其中包含pub_date小于或者等于timezone.now()的问题
         now_datetime = Question.objects.filter(pub_date__lte=timezone.now())
-        return now_datetime.exclude(choice__isnull=True).distinct().order_by("-pub_date")[:5]
+        return now_datetime.exclude(choice__isnull=True).distinct().order_by("-pub_date")[::]
 
 
 class DetailView(generic.DetailView):

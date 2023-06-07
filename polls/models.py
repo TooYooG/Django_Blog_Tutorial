@@ -2,6 +2,7 @@ import datetime
 
 from django.db import models
 from django.utils import timezone
+from django.contrib import admin
 
 
 # 投票应用中需要创建2个模型，分别是”问题“和”选项“
@@ -23,6 +24,12 @@ class Question(models.Model):
     # question test和date published是字段的可读名，不影响，只是在数据库表中对其进行描述
     question_text = models.CharField('投票名称', max_length=200)
     pub_date = models.DateTimeField('发布时间')
+
+    @admin.display(
+        boolean=True,
+        ordering="pub_date",
+        description="Published recently"
+    )
 
     def was_published_recently(self):
         return timezone.now() - datetime.timedelta(days=1) <= self.pub_date <= timezone.now()
